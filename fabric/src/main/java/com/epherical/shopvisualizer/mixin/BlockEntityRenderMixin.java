@@ -2,6 +2,8 @@ package com.epherical.shopvisualizer.mixin;
 
 import com.epherical.shopvisualizer.interfaces.BukkitBlockEntity;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ChestBlock;
+import net.minecraft.block.WallSignBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
@@ -15,7 +17,9 @@ import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,16 +41,25 @@ public class BlockEntityRenderMixin {
             BlockState state = world.getBlockState(blockEntity.getPos());
             int light = WorldRenderer.getLightmapCoordinates(world, blockEntity.getPos());
             if (state != null && blockEntity instanceof BukkitBlockEntity) {
+
                 BukkitBlockEntity bukkitBlock = (BukkitBlockEntity) blockEntity;
                 CompoundTag tag = bukkitBlock.shop$getBukkitValues();
                 if (tag != null) {
                     matrices.push();
+                    float direction = 0;
+
+                    if (state.contains(Properties.HORIZONTAL_FACING)) {
+                        Direction dir = blockEntity.getCachedState().get(Properties.HORIZONTAL_FACING);
+                        direction = dir.asRotation();
+                        matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
+                    }
+
                     if (tag.contains("shop-visualizer:trnl")) {
                         setTranslation(matrices, tag.getCompound("shop-visualizer:trnl"));
                     }
 
                     if (tag.contains("shop-visualizer:rot")) {
-                        setRotation(matrices, tag.getCompound("shop-visualizer:rot"));
+                        setRotation(matrices, tag.getCompound("shop-visualizer:rot"), direction);
                     }
 
                     if (tag.contains("shop-visualizer:scl")) {
@@ -68,9 +81,9 @@ public class BlockEntityRenderMixin {
         matrices.translate(tag.getFloat("shop-visualizer:x"), tag.getFloat("shop-visualizer:y"), tag.getFloat("shop-visualizer:z"));
     }
 
-    private static void setRotation(MatrixStack matrices, CompoundTag tag) {
+    private static void setRotation(MatrixStack matrices, CompoundTag tag, float rot) {
         rotate(matrices, Vector3f.POSITIVE_X, tag.getFloat("shop-visualizer:x"));
-        rotate(matrices, Vector3f.POSITIVE_Y, tag.getFloat("shop-visualizer:y"));
+        rotate(matrices, Vector3f.POSITIVE_Y, tag.getFloat("shop-visualizer:y") + rot);
         rotate(matrices, Vector3f.POSITIVE_Z, tag.getFloat("shop-visualizer:z"));
     }
 

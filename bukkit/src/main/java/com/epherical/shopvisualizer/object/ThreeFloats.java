@@ -2,9 +2,9 @@ package com.epherical.shopvisualizer.object;
 
 public class ThreeFloats {
 
-    private final float x;
-    private final float y;
-    private final float z;
+    private float x;
+    private float y;
+    private float z;
 
     public ThreeFloats(float x, float y, float z) {
         this.x = x;
@@ -22,5 +22,17 @@ public class ThreeFloats {
 
     public float getZ() {
         return z;
+    }
+
+    public ThreeFloats add(float x, float y, float z) {
+        this.x += x;
+        this.y += y;
+        this.z += z;
+        return this;
+    }
+
+    @Override
+    protected ThreeFloats clone() {
+        return new ThreeFloats(x, y, z);
     }
 }

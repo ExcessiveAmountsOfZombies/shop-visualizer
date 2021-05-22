@@ -2,17 +2,19 @@ package com.epherical.shopvisualizer.object;
 
 import com.epherical.shopvisualizer.ShopVisualizerPlugin;
 import com.epherical.shopvisualizer.pdc.ThreeFloatTagType;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.TileState;
+import org.bukkit.block.data.Directional;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.util.function.Predicate;
 
 public enum RenderType {
 
 
-    ITEM(new ThreeFloats(-0.5f, 1.15f, 0.5f), new ThreeFloats(0.6f, 0.6f, 0.6f), new ThreeFloats(0f, -90f, 0f), true),
-    BLOCK(new ThreeFloats(-0.5f, 1.15f, 0.5f), new ThreeFloats(0.6f, 0.6f, 0.6f), new ThreeFloats(0f, 0, 0f), false);
-
-
+    ITEM(new ThreeFloats(0f, 1.15f, 0f), new ThreeFloats(0.6f, 0.6f, 0.6f), new ThreeFloats(0f, 0, 0f), true),
+    BLOCK(new ThreeFloats(0f, 1.15f, 0f), new ThreeFloats(0.6f, 0.6f, 0.6f), new ThreeFloats(0f, 0, 0f), false);
 
     private final ThreeFloats translation;
     private final ThreeFloats scale;
@@ -30,6 +32,20 @@ public enum RenderType {
 
     public void createRenderData(TileState state, String itemKey) {
         ThreeFloatTagType tagType = new ThreeFloatTagType();
+        ThreeFloats translation = this.translation;
+        ThreeFloats rotation = this.rotation;
+        if (state.getBlockData() instanceof Directional) {
+            Directional directional = (Directional) state.getBlockData();
+            for (RenderDirection value : RenderDirection.values()) {
+                if (value.blockFacePredicate.test(directional.getFacing())) {
+                    translation = translation.clone().add(value.x, 0, value.z);
+                    rotation = rotation.clone().add(0, value.yRot, 0);
+                    break;
+                }
+            }
+        } else {
+            translation =  translation.clone().add(0.5f, 0, 0.5f);
+        }
         PersistentDataContainer container = state.getPersistentDataContainer();
         PersistentDataContainer threeFloats = tagType.toPrimitive(translation, container.getAdapterContext());
         container.set(ShopVisualizerPlugin.createKey("trnl"), PersistentDataType.TAG_CONTAINER, threeFloats);
@@ -42,5 +58,30 @@ public enum RenderType {
 
         container.set(ShopVisualizerPlugin.createKey("itm"), PersistentDataType.STRING, itemKey.toLowerCase());
         state.update(true);
+    }
+
+    // other potential is to make compare coordinates or whatever and ignore the direction completely
+    // Items are in NORTH-WEST side of block.
+    // If Facing north, to get to the center we need -0.5, -0.5 // sub 1 to Z
+    // if facing south, to get to the center we need 0.5, 0.5 // sub 1 to Z
+    // If Facing east, to get to the center we need 0.5, -0.5 // add 1 to Z
+    // if facing west, to get to the center we need -0.5, 0.5 // add 1 to Z
+    enum RenderDirection {
+        NORTH(-0.5f, -1.5f, blockFace -> blockFace == BlockFace.NORTH, 180),
+        SOUTH(0.5f, -0.5f, blockFace -> blockFace == BlockFace.SOUTH, 180),
+        EAST(0.5f, 0.5f, blockFace -> blockFace == BlockFace.EAST, -90),
+        WEST(-0.5f, 1.5f, blockFace -> blockFace == BlockFace.WEST, -90);
+
+        final float x;
+        final float z;
+        final Predicate<BlockFace> blockFacePredicate;
+        final float yRot;
+
+        RenderDirection(float x, float z, Predicate<BlockFace> direction, float yRot) {
+            this.x = x;
+            this.z = z;
+            this.blockFacePredicate = direction;
+            this.yRot = yRot;
+        }
     }
 }

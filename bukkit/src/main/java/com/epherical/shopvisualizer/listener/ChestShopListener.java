@@ -20,6 +20,7 @@ public class ChestShopListener implements Listener {
         }
 
         int firstItem = chest.getInventory().firstEmpty() - 1;
+        firstItem = Math.max(firstItem, 0);
         ItemStack item = chest.getInventory().getItem(firstItem);
         if (item != null) {
             Sign sign = event.getSign();
