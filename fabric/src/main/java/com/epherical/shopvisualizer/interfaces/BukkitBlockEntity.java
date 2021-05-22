@@ -4,5 +4,5 @@ import net.minecraft.nbt.CompoundTag;
 
 public interface BukkitBlockEntity {
 
-    CompoundTag getBukkitValues();
+    CompoundTag shop$getBukkitValues();
 }

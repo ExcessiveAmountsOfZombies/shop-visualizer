@@ -2,10 +2,7 @@ package com.epherical.shopvisualizer.mixin;
 
 import com.epherical.shopvisualizer.interfaces.BukkitBlockEntity;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.SignBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -19,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,7 +38,7 @@ public class BlockEntityRenderMixin {
             int light = WorldRenderer.getLightmapCoordinates(world, blockEntity.getPos());
             if (state != null && blockEntity instanceof BukkitBlockEntity) {
                 BukkitBlockEntity bukkitBlock = (BukkitBlockEntity) blockEntity;
-                CompoundTag tag = bukkitBlock.getBukkitValues();
+                CompoundTag tag = bukkitBlock.shop$getBukkitValues();
                 if (tag != null) {
                     matrices.push();
                     if (tag.contains("shop-visualizer:trnl")) {

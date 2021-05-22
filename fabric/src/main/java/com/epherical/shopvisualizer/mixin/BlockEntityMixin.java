@@ -22,7 +22,7 @@ public class BlockEntityMixin implements BukkitBlockEntity {
     }
 
     @Override
-    public CompoundTag getBukkitValues() {
+    public CompoundTag shop$getBukkitValues() {
         return shop$publicBukkitValues;
     }
 }
