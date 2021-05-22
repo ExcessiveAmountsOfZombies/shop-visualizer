@@ -1,13 +1,13 @@
 package com.epherical.shopvisualizer.pdc;
 
 import com.epherical.shopvisualizer.ShopVisualizerPlugin;
-import com.epherical.shopvisualizer.object.ThreeDoubles;
+import com.epherical.shopvisualizer.object.ThreeFloats;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-public class ThreeDoubleTagType implements PersistentDataType<PersistentDataContainer, ThreeDoubles> {
+public class ThreeFloatTagType implements PersistentDataType<PersistentDataContainer, ThreeFloats> {
 
     public static final NamespacedKey X = ShopVisualizerPlugin.createKey("x");
     public static final NamespacedKey Y = ShopVisualizerPlugin.createKey("y");
@@ -19,24 +19,24 @@ public class ThreeDoubleTagType implements PersistentDataType<PersistentDataCont
     }
 
     @Override
-    public Class<ThreeDoubles> getComplexType() {
-        return ThreeDoubles.class;
+    public Class<ThreeFloats> getComplexType() {
+        return ThreeFloats.class;
     }
 
     @Override
-    public PersistentDataContainer toPrimitive(ThreeDoubles complex, PersistentDataAdapterContext context) {
+    public PersistentDataContainer toPrimitive(ThreeFloats complex, PersistentDataAdapterContext context) {
         PersistentDataContainer container = context.newPersistentDataContainer();
-        container.set(X, DOUBLE, complex.getX());
-        container.set(Y, DOUBLE, complex.getY());
-        container.set(Z, DOUBLE, complex.getZ());
+        container.set(X, FLOAT, complex.getX());
+        container.set(Y, FLOAT, complex.getY());
+        container.set(Z, FLOAT, complex.getZ());
         return container;
     }
 
     @Override
-    public ThreeDoubles fromPrimitive(PersistentDataContainer primitive, PersistentDataAdapterContext context) {
-        Double x = primitive.get(X, DOUBLE);
-        Double y = primitive.get(Y, DOUBLE);
-        Double z = primitive.get(Z, DOUBLE);
-        return new ThreeDoubles(x, y, z);
+    public ThreeFloats fromPrimitive(PersistentDataContainer primitive, PersistentDataAdapterContext context) {
+        Float x = primitive.get(X, FLOAT);
+        Float y = primitive.get(Y, FLOAT);
+        Float z = primitive.get(Z, FLOAT);
+        return new ThreeFloats(x, y, z);
     }
 }
