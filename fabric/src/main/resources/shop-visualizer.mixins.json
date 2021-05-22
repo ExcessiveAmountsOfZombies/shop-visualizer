@@ -4,6 +4,7 @@
   "package": "com.epherical.shopvisualizer.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "BlockEntityMixin",
     "BlockEntityRenderMixin"
   ],
   "client": [
