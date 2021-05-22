@@ -1,0 +1,5 @@
+name: "ShopVisualizer"
+version: 1.0.0
+main: com.epherical.shopvisualizer.ShopVisualizerPlugin
+api-version: 1.16
+authors: [ Thonk ]

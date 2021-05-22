@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "shop-visualizer",
+  "version": "${version}",
+  "name": "Shop Visualizer",
+  "description": "",
+  "authors": [
+    "Thonk"
+  ],
+  "contact": {},
+  "license": "LGPL-3.0",
+  "icon": "assets/shop-visualizer/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.epherical.shopvisualizer.client.ShopVisualizerClient"
+    ],
+    "main": [
+      "com.epherical.shopvisualizer.ShopVisualizer"
+    ]
+  },
+  "mixins": [
+    "shop-visualizer.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.16.5"
+  }
+}
