@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockEntityRenderDispatcher.class)
-public class ChestRendererMixin {
+public class BlockEntityRenderMixin {
 
     private static final ItemStack itemStack = new ItemStack(Items.STONE);
 

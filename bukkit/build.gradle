@@ -6,6 +6,7 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         name = 'spigotmc-repo'
@@ -15,14 +16,36 @@ repositories {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
+
+    maven {
+        url = "https://repo.aikar.co/content/groups/aikar/"
+    }
 }
 
 dependencies {
+    compile "co.aikar:acf-paper:0.5.0-SNAPSHOT"
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
 }
 
 processResources {
+    inputs.property "version", rootProject.version
+
     from(sourceSets.main.resources.srcDirs) {
-        filter ReplaceTokens, tokens: [version: rootProject.version]
+        include "plugin.yml"
+        expand "version": rootProject.version
     }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "plugin.yml"
+    }
+}
+
+shadowJar {
+    relocate "co.aikar.commands", "com.epherical.commands.acf"
+    relocate "co.aikar.locales", "com.epherical.locales"
+    relocate "org.bstats", "com.epherical.bstats"
+}
+
+build {
+    dependsOn(shadowJar)
 }
