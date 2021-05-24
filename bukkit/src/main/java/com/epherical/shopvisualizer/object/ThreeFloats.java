@@ -35,4 +35,13 @@ public class ThreeFloats {
     protected ThreeFloats clone() {
         return new ThreeFloats(x, y, z);
     }
+
+    @Override
+    public String toString() {
+        return "ThreeFloats{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
 }

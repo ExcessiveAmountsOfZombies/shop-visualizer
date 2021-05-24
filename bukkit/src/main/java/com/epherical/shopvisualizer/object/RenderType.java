@@ -30,7 +30,7 @@ public enum RenderType {
     }
 
 
-    public void createRenderData(TileState state, String itemKey) {
+    public void createRenderData(TileState state, boolean hasZMod, float yMod, String itemKey) {
         ThreeFloatTagType tagType = new ThreeFloatTagType();
         ThreeFloats translation = this.translation;
         ThreeFloats rotation = this.rotation;
@@ -38,7 +38,11 @@ public enum RenderType {
             Directional directional = (Directional) state.getBlockData();
             for (RenderDirection value : RenderDirection.values()) {
                 if (value.blockFacePredicate.test(directional.getFacing())) {
-                    translation = translation.clone().add(value.x, 0, value.z);
+                    float z = value.z;
+                    if (hasZMod) {
+                        z += value.zMod;
+                    }
+                    translation = translation.clone().add(value.x, yMod, z);
                     rotation = rotation.clone().add(0, value.yRot, 0);
                     break;
                 }
@@ -67,21 +71,23 @@ public enum RenderType {
     // If Facing east, to get to the center we need 0.5, -0.5 // add 1 to Z
     // if facing west, to get to the center we need -0.5, 0.5 // add 1 to Z
     enum RenderDirection {
-        NORTH(-0.5f, -1.5f, blockFace -> blockFace == BlockFace.NORTH, 180),
-        SOUTH(0.5f, -0.5f, blockFace -> blockFace == BlockFace.SOUTH, 180),
-        EAST(0.5f, 0.5f, blockFace -> blockFace == BlockFace.EAST, -90),
-        WEST(-0.5f, 1.5f, blockFace -> blockFace == BlockFace.WEST, -90);
+        NORTH(-0.5f, -0.5f, blockFace -> blockFace == BlockFace.NORTH, 0, -1),
+        SOUTH(0.5f, 0.5f, blockFace -> blockFace == BlockFace.SOUTH, 180, -1),
+        EAST(0.5f, -0.5f, blockFace -> blockFace == BlockFace.EAST, 90, 1),
+        WEST(-0.5f, 0.5f, blockFace -> blockFace == BlockFace.WEST, -90, 1);
 
         final float x;
         final float z;
         final Predicate<BlockFace> blockFacePredicate;
         final float yRot;
+        final float zMod;
 
-        RenderDirection(float x, float z, Predicate<BlockFace> direction, float yRot) {
+        RenderDirection(float x, float z, Predicate<BlockFace> direction, float yRot, float zMod) {
             this.x = x;
             this.z = z;
             this.blockFacePredicate = direction;
             this.yRot = yRot;
+            this.zMod = zMod;
         }
     }
 }
