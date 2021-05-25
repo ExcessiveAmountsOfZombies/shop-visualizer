@@ -1,17 +1,17 @@
 package com.epherical.shopvisualizer.mixin;
 
+import com.epherical.shopvisualizer.client.ShopVisualizerClient;
 import com.epherical.shopvisualizer.interfaces.ShopBlockEntity;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
@@ -34,7 +34,7 @@ import java.util.List;
 public class BlockEntityRenderMixin {
 
     @Shadow public Camera camera;
-    private static ItemStack itemStack = new ItemStack(Items.STONE);
+    private static ItemStack itemStack;
 
     @Inject(method = "render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V",
             at = @At("RETURN"))
@@ -57,40 +57,33 @@ public class BlockEntityRenderMixin {
                         matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
                     }
 
-                    if (tag.contains("shop-visualizer:trnl")) {
-                        setTranslation(matrices, tag.getCompound("shop-visualizer:trnl"));
-                    }
+                    directionTranslate(matrices, dir, 1, 1);
+                    matrices.scale(0.45f, 0.45f, 0.45f);
 
-                    if (tag.contains("shop-visualizer:rot")) {
-                        setRotation(matrices, tag.getCompound("shop-visualizer:rot"), direction);
-                    }
-
-                    if (tag.contains("shop-visualizer:scl")) {
-                        setScale(matrices, tag.getCompound("shop-visualizer:scl"));
-                    }
-
-                    // gunpowder compat, fabric mod //todo: i want to improve this if i can
-                    if (tag.contains("owner")) {
-                        directionTranslate(matrices, dir, 1);
-                        matrices.scale(0.5f, 0.5f, 0.5f);
-                    }
 
                     if (item == null) {
-                        // if it's null at this point it's probably a fabric based shop. todo: improve this...
-                        item = ItemStack.fromTag((CompoundTag) tag.get("item"));
+                        item = ShopVisualizerClient.getItemStackFromBukkitContainer(tag.getByteArray("shop-visualizer:item"), world, itemStack);
+                        item = tag.get("item") != null ? ItemStack.fromTag((CompoundTag) tag.get("item")) : item;
                         bukkitBlock.shop$setItemStack(item);
                     }
 
-                    List<Text> text = item.getTooltip(null, TooltipContext.Default.ADVANCED);
+                    List<Text> text = item.getTooltip(null, TooltipContext.Default.NORMAL);
                     int decrement = -10;
                     int cur = -(text.size() * 10);
+                    TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
+                    float h = -40;
+                    if (text.size() == 1) {
+                        h = (float)(-renderer.getWidth(text.get(0)) / 2);
+                    }
+
                     for (Text text1 : text) {
                         matrices.push();
                         matrices.scale(-0.02F, -0.02F, 0.025F);
-                        directionTranslate(matrices, dir, -15);
+                        directionTranslate(matrices, dir, 30, -15);
+
                         matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw()));
                         matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
-                        MinecraftClient.getInstance().textRenderer.draw(text1, -35, (cur -= decrement) - 25, 0xFFFFFFFF, false, matrices.peek().getModel(), vertexConsumers, false, 0, light);
+                        renderer.draw(text1, h, (cur -= decrement) - 30, 0xFFFFFFFF, false, matrices.peek().getModel(), vertexConsumers, false, 0, light);
                         matrices.pop();
                     }
 
@@ -101,7 +94,7 @@ public class BlockEntityRenderMixin {
         }
     }
 
-    private static void setTranslation(MatrixStack matrices, CompoundTag tag) {
+    /*private static void setTranslation(MatrixStack matrices, CompoundTag tag) {
         matrices.translate(tag.getFloat("shop-visualizer:x"), tag.getFloat("shop-visualizer:y"), tag.getFloat("shop-visualizer:z"));
     }
 
@@ -109,34 +102,47 @@ public class BlockEntityRenderMixin {
         rotate(matrices, Vector3f.POSITIVE_X, tag.getFloat("shop-visualizer:x"));
         rotate(matrices, Vector3f.POSITIVE_Y, tag.getFloat("shop-visualizer:y") + rot);
         rotate(matrices, Vector3f.POSITIVE_Z, tag.getFloat("shop-visualizer:z"));
-    }
+    }*/
 
     private static void rotate(MatrixStack matrices, Vector3f vector, float angle) {
         matrices.multiply(vector.getDegreesQuaternion(angle));
     }
 
-    private static void setScale(MatrixStack matrices, CompoundTag tag) {
+    /*private static void setScale(MatrixStack matrices, CompoundTag tag) {
         matrices.scale(tag.getFloat("shop-visualizer:x"), tag.getFloat("shop-visualizer:y"), tag.getFloat("shop-visualizer:z"));
-    }
+    }*/
 
-    private static void directionTranslate(MatrixStack matrices, Direction dir, int multiplier) {
+    private static void directionTranslate(MatrixStack matrices, Direction dir, int multiplierOne, int multiplierTwo) {
         if (dir != null) {
             switch (dir) {
                 case NORTH:
-                    matrices.translate(-0.5f * multiplier, 1.15f, -1.5f * multiplier);
+                    // -0.5f, -0.5f sub 1 to z
+                    matrices.translate(-0.5f, 1.15f, -1.5f * multiplierOne);
+                    rotate(matrices, Vector3f.POSITIVE_Y, 180);
                     break;
                 case SOUTH:
-                    matrices.translate(0.5f * multiplier, 1.15f, -0.5f * multiplier);
+                    // -0.5f, 0.5f sub 1 to z
+                    matrices.translate(0.5f, 1.15f, -0.5f * multiplierOne);
+                    rotate(matrices, Vector3f.POSITIVE_Y, 180);
                     break;
                 case EAST:
-                    matrices.translate(0.5f * multiplier, 1.15f, 0.5f * multiplier);
+                    // -0.5f, -0.5f add 1 to z
+                    matrices.translate(0.5f, 1.15f, 0.5f * multiplierTwo);
+                    rotate(matrices, Vector3f.POSITIVE_Y, 0);
                     break;
                 case WEST:
-                    matrices.translate(-0.5f * multiplier, 1.15f, 1.5f * multiplier);
+                    // -0.5f, 0.5f add 1 to z
+                    matrices.translate(-0.5f, 1.15f, 1.5f * multiplierTwo);
+                    rotate(matrices, Vector3f.POSITIVE_Y, 0);
                     break;
             }
         } else {
             matrices.translate(0.5f, 1.25f, 0.5f);
         }
+    }
+
+    static {
+        itemStack = new ItemStack(Items.BARRIER);
+        itemStack.setCustomName(Text.of("Shop is currently empty."));
     }
 }

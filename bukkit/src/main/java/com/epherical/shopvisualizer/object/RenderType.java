@@ -2,9 +2,10 @@ package com.epherical.shopvisualizer.object;
 
 import com.epherical.shopvisualizer.ShopVisualizerPlugin;
 import com.epherical.shopvisualizer.pdc.ThreeFloatTagType;
+import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.TileState;
-import org.bukkit.block.data.Directional;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -30,35 +31,14 @@ public enum RenderType {
     }
 
 
-    public void createRenderData(TileState state, boolean hasZMod, float yMod, String itemKey) {
+    public void createRenderData(TileState state, Location chestLocation, boolean hasZMod, float yMod, ItemStack item) {
+        // Going to limit this for now to be all controlled by the client, but in the future might want to open it back up.
         ThreeFloatTagType tagType = new ThreeFloatTagType();
-        ThreeFloats translation = this.translation;
-        ThreeFloats rotation = this.rotation;
-        if (state.getBlockData() instanceof Directional) {
-            Directional directional = (Directional) state.getBlockData();
-            for (RenderDirection value : RenderDirection.values()) {
-                if (value.blockFacePredicate.test(directional.getFacing())) {
-                    float z = value.z;
-                    if (hasZMod) {
-                        z += value.zMod;
-                    }
-                    translation = translation.clone().add(value.x, yMod, z);
-                    rotation = rotation.clone().add(0, value.yRot, 0);
-                    break;
-                }
-            }
-        } else {
-            translation =  translation.clone().add(0.5f, 0, 0.5f);
-        }
         PersistentDataContainer container = state.getPersistentDataContainer();
-        PersistentDataContainer threeFloats = tagType.toPrimitive(translation, container.getAdapterContext());
-        container.set(ShopVisualizerPlugin.createKey("trnl"), PersistentDataType.TAG_CONTAINER, threeFloats);
-        threeFloats = tagType.toPrimitive(scale, container.getAdapterContext());
-        container.set(ShopVisualizerPlugin.createKey("scl"), PersistentDataType.TAG_CONTAINER, threeFloats);
-        threeFloats = tagType.toPrimitive(rotation, container.getAdapterContext());
-        container.set(ShopVisualizerPlugin.createKey("rot"), PersistentDataType.TAG_CONTAINER, threeFloats);
-
-        container.set(ShopVisualizerPlugin.createKey("itm"), PersistentDataType.STRING, itemKey.toLowerCase());
+        ThreeFloats floats = new ThreeFloats(chestLocation.getBlockX(), chestLocation.getBlockY(), chestLocation.getBlockZ());
+        PersistentDataContainer threeFloats = tagType.toPrimitive(floats, container.getAdapterContext());
+        container.set(ShopVisualizerPlugin.createKey("xyz"), PersistentDataType.TAG_CONTAINER, threeFloats);
+        container.set(ShopVisualizerPlugin.createKey("item"), PersistentDataType.BYTE_ARRAY, ShopVisualizerPlugin.serializeItemStack(item));
         state.update(true);
     }
 

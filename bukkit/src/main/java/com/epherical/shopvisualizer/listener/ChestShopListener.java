@@ -38,7 +38,7 @@ public class ChestShopListener implements Listener {
             // the offsets need to be applied. They don't need to be applied when the sign is above or directly below the chest.
             boolean hasZMod = xDiff != zDiff;
 
-            RenderType.ITEM.createRenderData(sign, hasZMod, -Math.abs(yDiff), item.getType().getKey().toString());
+            RenderType.ITEM.createRenderData(sign, chestLocation, hasZMod, -Math.abs(yDiff), item);
         }
 
 
