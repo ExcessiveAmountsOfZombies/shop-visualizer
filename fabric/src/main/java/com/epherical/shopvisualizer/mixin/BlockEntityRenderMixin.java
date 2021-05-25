@@ -1,9 +1,7 @@
 package com.epherical.shopvisualizer.mixin;
 
-import com.epherical.shopvisualizer.interfaces.BukkitBlockEntity;
+import com.epherical.shopvisualizer.interfaces.ShopBlockEntity;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.WallSignBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
@@ -18,9 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,16 +36,16 @@ public class BlockEntityRenderMixin {
         if (world != null) {
             BlockState state = world.getBlockState(blockEntity.getPos());
             int light = WorldRenderer.getLightmapCoordinates(world, blockEntity.getPos());
-            if (state != null && blockEntity instanceof BukkitBlockEntity) {
-
-                BukkitBlockEntity bukkitBlock = (BukkitBlockEntity) blockEntity;
-                CompoundTag tag = bukkitBlock.shop$getBukkitValues();
+            if (state != null && blockEntity instanceof ShopBlockEntity) {
+                ShopBlockEntity bukkitBlock = (ShopBlockEntity) blockEntity;
+                ItemStack item = bukkitBlock.shop$getItemStack();
+                CompoundTag tag = bukkitBlock.shop$getShopTag();
                 if (tag != null) {
                     matrices.push();
                     float direction = 0;
-
+                    Direction dir = null;
                     if (state.contains(Properties.HORIZONTAL_FACING)) {
-                        Direction dir = blockEntity.getCachedState().get(Properties.HORIZONTAL_FACING);
+                        dir = blockEntity.getCachedState().get(Properties.HORIZONTAL_FACING);
                         direction = dir.asRotation();
                         matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
                     }
@@ -66,11 +62,36 @@ public class BlockEntityRenderMixin {
                         setScale(matrices, tag.getCompound("shop-visualizer:scl"));
                     }
 
-                    if (tag.contains("shop-visualizer:itm")) {
-                        setItem(tag);
+                    // gunpowder compat, fabric mod //todo: i want to improve this if i can
+                    if (tag.contains("owner")) {
+                        if (dir != null) {
+                            switch (dir) {
+                                case NORTH:
+                                    matrices.translate(-0.5f, 1.15f, -1.5f);
+                                    break;
+                                case SOUTH:
+                                    matrices.translate(0.5f, 1.15f, -0.5f);
+                                    break;
+                                case EAST:
+                                    matrices.translate(0.5f, 1.15f, 0.5f);
+                                    break;
+                                case WEST:
+                                    matrices.translate(-0.5f, 1.15f, 1.5f);
+                                    break;
+                            }
+                        } else {
+                            matrices.translate(0.5f, 1.25f, 0.5f);
+                        }
+                        matrices.scale(0.5f, 0.5f, 0.5f);
                     }
 
-                    MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformation.Mode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers);
+                    if (item == null) {
+                        // if it's null at this point it's probably a fabric based shop. todo: improve this...
+                        item = ItemStack.fromTag((CompoundTag) tag.get("item"));
+                        bukkitBlock.shop$setItemStack(item);
+                    }
+
+                    MinecraftClient.getInstance().getItemRenderer().renderItem(item, ModelTransformation.Mode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers);
                     matrices.pop();
                 }
             }
@@ -93,9 +114,5 @@ public class BlockEntityRenderMixin {
 
     private static void setScale(MatrixStack matrices, CompoundTag tag) {
         matrices.scale(tag.getFloat("shop-visualizer:x"), tag.getFloat("shop-visualizer:y"), tag.getFloat("shop-visualizer:z"));
-    }
-
-    private static void setItem(CompoundTag tag) {
-        itemStack = new ItemStack(Registry.ITEM.get(new Identifier(tag.getString("shop-visualizer:itm"))));
     }
 }
