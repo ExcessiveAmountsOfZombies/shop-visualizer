@@ -55,10 +55,8 @@ public enum RenderType {
         container.set(ShopVisualizerPlugin.createKey("trnl"), PersistentDataType.TAG_CONTAINER, threeFloats);
         threeFloats = tagType.toPrimitive(scale, container.getAdapterContext());
         container.set(ShopVisualizerPlugin.createKey("scl"), PersistentDataType.TAG_CONTAINER, threeFloats);
-        if (applyRotation) {
-            threeFloats = tagType.toPrimitive(rotation, container.getAdapterContext());
-            container.set(ShopVisualizerPlugin.createKey("rot"), PersistentDataType.TAG_CONTAINER, threeFloats);
-        }
+        threeFloats = tagType.toPrimitive(rotation, container.getAdapterContext());
+        container.set(ShopVisualizerPlugin.createKey("rot"), PersistentDataType.TAG_CONTAINER, threeFloats);
 
         container.set(ShopVisualizerPlugin.createKey("itm"), PersistentDataType.STRING, itemKey.toLowerCase());
         state.update(true);
