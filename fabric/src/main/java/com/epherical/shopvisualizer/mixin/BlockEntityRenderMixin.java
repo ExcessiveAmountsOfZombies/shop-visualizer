@@ -67,24 +67,26 @@ public class BlockEntityRenderMixin {
                         bukkitBlock.shop$setItemStack(item);
                     }
 
-                    List<Text> text = item.getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.NORMAL);
-                    int decrement = -10;
-                    int cur = -(text.size() * 10);
-                    TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
-                    float h = -40;
-                    if (text.size() == 1) {
-                        h = (float)(-renderer.getWidth(text.get(0)) / 2);
-                    }
+                    if (ShopVisualizerClient.getHoveredShop().equals(blockEntity.getPos())) {
+                        List<Text> text = item.getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.NORMAL);
+                        int decrement = -10;
+                        int cur = -(text.size() * 10);
+                        TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
+                        float h = -40;
+                        if (text.size() == 1) {
+                            h = (float)(-renderer.getWidth(text.get(0)) / 2);
+                        }
 
-                    for (Text text1 : text) {
-                        matrices.push();
-                        matrices.scale(-0.02F, -0.02F, 0.025F);
-                        directionTranslate(matrices, dir, 30, -15);
+                        for (Text text1 : text) {
+                            matrices.push();
+                            matrices.scale(-0.02F, -0.02F, 0.025F);
+                            directionTranslate(matrices, dir, 30, -15);
 
-                        matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw()));
-                        matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
-                        renderer.draw(text1, h, (cur -= decrement) - 30, 0xFFFFFFFF, false, matrices.peek().getModel(), vertexConsumers, false, 0, light);
-                        matrices.pop();
+                            matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw()));
+                            matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
+                            renderer.draw(text1, h, (cur -= decrement) - 30, 0xFFFFFFFF, false, matrices.peek().getModel(), vertexConsumers, false, 0, light);
+                            matrices.pop();
+                        }
                     }
 
                     MinecraftClient.getInstance().getItemRenderer().renderItem(item, ModelTransformation.Mode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers);
