@@ -67,7 +67,7 @@ public class BlockEntityRenderMixin {
                         bukkitBlock.shop$setItemStack(item);
                     }
 
-                    List<Text> text = item.getTooltip(null, TooltipContext.Default.NORMAL);
+                    List<Text> text = item.getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.NORMAL);
                     int decrement = -10;
                     int cur = -(text.size() * 10);
                     TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
