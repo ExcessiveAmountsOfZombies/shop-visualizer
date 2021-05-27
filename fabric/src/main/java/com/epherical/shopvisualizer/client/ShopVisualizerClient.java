@@ -1,5 +1,8 @@
 package com.epherical.shopvisualizer.client;
 
+import com.epherical.shopvisualizer.BukkitRenderer;
+import com.epherical.shopvisualizer.GunpowderRenderer;
+import com.epherical.shopvisualizer.RenderCondition;
 import com.epherical.shopvisualizer.interfaces.ShopBlockEntity;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.api.ClientModInitializer;
@@ -17,18 +20,29 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 public class ShopVisualizerClient implements ClientModInitializer {
 
     private static BlockPos hoveredShop = BlockPos.ORIGIN;
 
+    public static Map<String, RenderCondition> renderers = new HashMap<>();
+
+
+    public static <T extends RenderCondition> void registerRenderer(String nbtKey, RenderCondition.RenderFactory<T> condition) {
+        renderers.put(nbtKey, condition.create(nbtKey));
+    }
+
     @Override
     public void onInitializeClient() {
+        registerRenderer("PublicBukkitValues", BukkitRenderer::new);
+        registerRenderer("link", GunpowderRenderer::new);
+
         WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
             if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
                 hoveredShop = BlockPos.ORIGIN;
@@ -47,7 +61,7 @@ public class ShopVisualizerClient implements ClientModInitializer {
         });
     }
 
-    public static ItemStack getItemStackFromBukkitContainer(byte[] tag, World world, ItemStack fallbackItem) {
+    public static ItemStack getItemStackFromBukkitContainer(byte[] tag, ItemStack fallbackItem) {
         try {
             if (tag == null) {
                 return fallbackItem;

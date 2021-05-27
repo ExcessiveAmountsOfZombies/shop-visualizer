@@ -62,8 +62,7 @@ public class BlockEntityRenderMixin {
 
 
                     if (item == null) {
-                        item = ShopVisualizerClient.getItemStackFromBukkitContainer(tag.getByteArray("shop-visualizer:item"), world, itemStack);
-                        item = tag.get("item") != null ? ItemStack.fromTag((CompoundTag) tag.get("item")) : item;
+                        item = bukkitBlock.shop$getRenderCondition().getItem(bukkitBlock, itemStack, tag);
                         bukkitBlock.shop$setItemStack(item);
                     }
 
