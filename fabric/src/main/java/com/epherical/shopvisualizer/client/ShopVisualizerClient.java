@@ -49,6 +49,9 @@ public class ShopVisualizerClient implements ClientModInitializer {
 
     public static ItemStack getItemStackFromBukkitContainer(byte[] tag, World world, ItemStack fallbackItem) {
         try {
+            if (tag == null) {
+                return fallbackItem;
+            }
             CompoundTag compound = NbtIo.readCompressed(new ByteArrayInputStream(tag));
             int dataVersion = compound.getInt("DataVersion");
             Dynamic<Tag> dynamicTag = Schemas.getFixer().update(TypeReferences.ITEM_STACK, new Dynamic<>(NbtOps.INSTANCE, compound), dataVersion, SharedConstants.getGameVersion().getWorldVersion());
