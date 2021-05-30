@@ -32,7 +32,6 @@ public abstract class SignBlockEntityMixin implements ShopBlockEntity {
             // Item it set instead in the rendermixin, hopefully all the block entities are loaded in by then
             //setItemFromTag(shop$shopTag, "shop-visualizer:itm");
         } else if (tag.contains("link")) {
-            // todo: we can make this better
             shop$shopTag = tag.getCompound("link");
         }*/
     }

@@ -1,3 +1,4 @@
+/*
 package com.epherical.shopvisualizer.command;
 
 import co.aikar.commands.BaseCommand;
@@ -76,3 +77,4 @@ public class VisualizeCommand extends BaseCommand {
     }
 
 }
+*/
