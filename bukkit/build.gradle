@@ -22,6 +22,10 @@ repositories {
     }
 
     maven {
+        url = "https://repo.codemc.io/repository/maven-public/"
+    }
+
+    maven {
         url = "https://repo.aikar.co/content/groups/aikar/"
     }
 }
@@ -31,6 +35,9 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly "com.acrobot.chestshop:chestshop:3.10"
+    compileOnly("org.maxgamer:QuickShop:4.0.8.3-SNAPSHOT") {
+        transitive = false
+    }
 }
 
 processResources {

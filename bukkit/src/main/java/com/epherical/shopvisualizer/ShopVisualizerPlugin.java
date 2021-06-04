@@ -2,7 +2,7 @@ package com.epherical.shopvisualizer;
 
 //import co.aikar.commands.BukkitCommandManager;
 //import com.epherical.shopvisualizer.command.VisualizeCommand;
-import com.epherical.shopvisualizer.listener.ChestShopListener;
+import com.epherical.shopvisualizer.listener.ShopListeners;
 import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import org.bukkit.Bukkit;
@@ -27,7 +27,7 @@ public final class ShopVisualizerPlugin extends JavaPlugin {
         //this.commandManager = new BukkitCommandManager(this);
         //this.commandManager.registerCommand(new VisualizeCommand());
 
-        getServer().getPluginManager().registerEvents(new ChestShopListener(), this);
+        getServer().getPluginManager().registerEvents(new ShopListeners(), this);
     }
 
     @Override
