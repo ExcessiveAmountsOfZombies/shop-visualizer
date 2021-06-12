@@ -9,4 +9,5 @@ pluginManagement {
 }
 include 'bukkit'
 include 'fabric'
+include 'forge'
 

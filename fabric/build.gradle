@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-archivesBaseName = rootProject.archives_base_name
+archivesBaseName = rootProject.archives_base_name + "-fabric"
 version = rootProject.mod_version
 group = rootProject.maven_group
 
