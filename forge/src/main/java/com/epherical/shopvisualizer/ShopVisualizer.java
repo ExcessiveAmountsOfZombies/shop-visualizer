@@ -1,6 +1,5 @@
 package com.epherical.shopvisualizer;
 
-import com.epherical.shopvisualizer.interfaces.ShopBlockEntity;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
@@ -8,15 +7,12 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.event.DrawHighlightEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -29,9 +25,6 @@ import java.util.Map;
 @Mod("shop-visualizer")
 public class ShopVisualizer {
 
-    private static Minecraft instance;
-    private static BlockPos hoveredShop = BlockPos.ZERO;
-
     public static Map<String, RenderCondition> renderers = new HashMap<>();
 
 
@@ -41,23 +34,10 @@ public class ShopVisualizer {
 
     public ShopVisualizer() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientInit);
-        MinecraftForge.EVENT_BUS.register(this);
     }
-
 
     private void onClientInit(final FMLClientSetupEvent event) {
         registerRenderer("PublicBukkitValues", BukkitRenderer::new);
-        instance = Minecraft.getInstance();
-    }
-
-    @SubscribeEvent
-    public void onOutline(DrawHighlightEvent.HighlightBlock event) {
-        TileEntity entity = instance.world.getTileEntity(event.getTarget().getPos());
-        if (entity instanceof ShopBlockEntity) {
-            hoveredShop = event.getTarget().getPos();
-        } else {
-            hoveredShop = BlockPos.ZERO;
-        }
     }
 
     public static ItemStack getItemStackFromBukkitContainer(byte[] tag, ItemStack fallbackItem) {
@@ -76,7 +56,12 @@ public class ShopVisualizer {
         return fallbackItem;
     }
 
-    public static BlockPos getHoveredShop() {
-        return hoveredShop;
+    public static boolean isHovering(BlockPos tileEntityPos) {
+        RayTraceResult result = Minecraft.getInstance().objectMouseOver;
+        if (result != null && result.getType() == RayTraceResult.Type.MISS) {
+            return false;
+        } else {
+            return tileEntityPos.equals(((BlockRayTraceResult)result).getPos());
+        }
     }
 }

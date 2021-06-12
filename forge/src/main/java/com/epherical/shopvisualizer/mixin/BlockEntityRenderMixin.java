@@ -65,7 +65,7 @@ public class BlockEntityRenderMixin {
                         bukkitBlock.shop$setItemStack(item);
                     }
 
-                    if (ShopVisualizer.getHoveredShop().equals(tileEntityIn.getPos())) {
+                    if (ShopVisualizer.isHovering(tileEntityIn.getPos())) {
                         List<ITextComponent> text = item.getTooltip(Minecraft.getInstance().player, ITooltipFlag.TooltipFlags.NORMAL);
                         int decrement = -10;
                         int cur = -(text.size() * 10);
@@ -116,9 +116,9 @@ public class BlockEntityRenderMixin {
         if (dir != null) {
             switch (dir) {
                 case NORTH:
-                    // -0.5f, -0.5f sub 1 to z
-                    matrices.translate(-0.5f, 1.15f, -1.5f * multiplierOne);
-                    rotate(matrices, Vector3f.YP, 180);
+                    // 0.5f, 0.5f add 1 to z
+                    matrices.translate(0.5f, 1.15f, 1.5f * multiplierOne);
+                    rotate(matrices, Vector3f.YP, 0);
                     break;
                 case SOUTH:
                     // -0.5f, 0.5f sub 1 to z
@@ -126,14 +126,14 @@ public class BlockEntityRenderMixin {
                     rotate(matrices, Vector3f.YP, 180);
                     break;
                 case EAST:
-                    // -0.5f, -0.5f add 1 to z
-                    matrices.translate(0.5f, 1.15f, 0.5f * multiplierTwo);
-                    rotate(matrices, Vector3f.YP, 0);
+                    // 0.5f, 0.5f sub 1 to x
+                    matrices.translate(-0.5f, 1.15f, 0.5f * multiplierTwo);
+                    rotate(matrices, Vector3f.YP, 270);
                     break;
                 case WEST:
-                    // -0.5f, 0.5f add 1 to z
-                    matrices.translate(-0.5f, 1.15f, 1.5f * multiplierTwo);
-                    rotate(matrices, Vector3f.YP, 0);
+                    // 0.5f, 0.5f add 1 to x
+                    matrices.translate(1.5f, 1.15f, 0.5f * multiplierTwo);
+                    rotate(matrices, Vector3f.YP, 90);
                     break;
             }
         } else {
