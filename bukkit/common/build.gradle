@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'com.epherical'
+version '1.0.1'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+}
+
+test {
+    useJUnitPlatform()
+}

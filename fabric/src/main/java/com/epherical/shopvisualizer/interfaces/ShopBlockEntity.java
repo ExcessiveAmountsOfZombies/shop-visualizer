@@ -2,11 +2,11 @@ package com.epherical.shopvisualizer.interfaces;
 
 import com.epherical.shopvisualizer.RenderCondition;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 public interface ShopBlockEntity {
 
-    CompoundTag shop$getShopTag();
+    NbtCompound shop$getShopTag();
 
     RenderCondition shop$getRenderCondition();
 

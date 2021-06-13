@@ -3,23 +3,22 @@ package com.epherical.shopvisualizer;
 //import co.aikar.commands.BukkitCommandManager;
 //import com.epherical.shopvisualizer.command.VisualizeCommand;
 import com.epherical.shopvisualizer.listener.ShopListeners;
-import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import com.epherical.shopvisualizer.nms.NMSHandler;
+import com.epherical.shopvisualizer.nms.NMS_116;
+import com.epherical.shopvisualizer.nms.NMS_117;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
 
 public final class ShopVisualizerPlugin extends JavaPlugin {
 
     public static final String NAMESPACE = "shop-visualizer";
 
+    private static final String serverPackage = Bukkit.getServer().getClass().getPackage().getName();
+    private static final String version = serverPackage.substring(serverPackage.lastIndexOf(".") + 1);
+    private static NMSHandler handler;
     //private BukkitCommandManager commandManager;
 
     @Override
@@ -28,6 +27,11 @@ public final class ShopVisualizerPlugin extends JavaPlugin {
         //this.commandManager.registerCommand(new VisualizeCommand());
 
         getServer().getPluginManager().registerEvents(new ShopListeners(), this);
+        if (version.equals("v1_16_R3")) {
+            handler = new NMS_116();
+        } else {
+            handler = new NMS_117();
+        }
     }
 
     @Override
@@ -41,21 +45,6 @@ public final class ShopVisualizerPlugin extends JavaPlugin {
     }
 
     public static byte[] serializeItemStack(ItemStack itemStack) {
-        if (itemStack == null || itemStack.getType() == Material.AIR) {
-            return null;
-        }
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        CraftItemStack stack = (CraftItemStack) itemStack;
-        try {
-            Field field = stack.getClass().getDeclaredField("handle");
-            field.setAccessible(true);
-            net.minecraft.server.v1_16_R3.ItemStack handle = (net.minecraft.server.v1_16_R3.ItemStack) field.get(stack);
-            NBTTagCompound compound = handle.save(new NBTTagCompound());
-            compound.setInt("DataVersion", Bukkit.getUnsafe().getDataVersion());
-            NBTCompressedStreamTools.a(compound, stream);
-        } catch (IllegalAccessException | NoSuchFieldException | IOException e) {
-            e.printStackTrace();
-        }
-        return stream.toByteArray();
+        return handler.serializeItemStack(itemStack);
     }
 }

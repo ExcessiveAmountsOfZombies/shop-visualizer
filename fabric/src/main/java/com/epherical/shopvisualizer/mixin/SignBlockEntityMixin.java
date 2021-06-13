@@ -3,10 +3,9 @@ package com.epherical.shopvisualizer.mixin;
 import com.epherical.shopvisualizer.RenderCondition;
 import com.epherical.shopvisualizer.client.ShopVisualizerClient;
 import com.epherical.shopvisualizer.interfaces.ShopBlockEntity;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(SignBlockEntity.class)
 public abstract class SignBlockEntityMixin implements ShopBlockEntity {
 
-    private CompoundTag shop$shopTag;
+    private NbtCompound shop$shopTag;
     private RenderCondition shop$condition;
     private ItemStack shop$itemStack;
 
-    @Inject(method = "fromTag", at = {@At("HEAD")})
-    public void fromTag(BlockState state, CompoundTag tag, CallbackInfo ci) {
+    @Inject(method = "readNbt", at = {@At("HEAD")})
+    public void fromTag(NbtCompound tag, CallbackInfo ci) {
         for (String key : tag.getKeys()) {
             if (ShopVisualizerClient.renderers.containsKey(key) && tag.getCompound(key) != null) {
                 shop$shopTag = tag.getCompound(key);
@@ -37,7 +36,7 @@ public abstract class SignBlockEntityMixin implements ShopBlockEntity {
     }
 
     @Override
-    public CompoundTag shop$getShopTag() {
+    public NbtCompound shop$getShopTag() {
         return shop$shopTag;
     }
 

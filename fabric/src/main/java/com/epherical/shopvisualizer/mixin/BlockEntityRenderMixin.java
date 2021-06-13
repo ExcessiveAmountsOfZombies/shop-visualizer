@@ -14,13 +14,13 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,7 +46,7 @@ public class BlockEntityRenderMixin {
             if (state != null && blockEntity instanceof ShopBlockEntity) {
                 ShopBlockEntity bukkitBlock = (ShopBlockEntity) blockEntity;
                 ItemStack item = bukkitBlock.shop$getItemStack();
-                CompoundTag tag = bukkitBlock.shop$getShopTag();
+                NbtCompound tag = bukkitBlock.shop$getShopTag();
                 if (tag != null) {
                     matrices.push();
                     float direction = 0;
@@ -54,7 +54,7 @@ public class BlockEntityRenderMixin {
                     if (state.contains(Properties.HORIZONTAL_FACING)) {
                         dir = blockEntity.getCachedState().get(Properties.HORIZONTAL_FACING);
                         direction = dir.asRotation();
-                        matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
+                        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(direction));
                     }
 
                     directionTranslate(matrices, dir, 1, 1);
@@ -81,14 +81,13 @@ public class BlockEntityRenderMixin {
                             matrices.scale(-0.02F, -0.02F, 0.025F);
                             directionTranslate(matrices, dir, 30, -15);
 
-                            matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw()));
-                            matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(direction));
+                            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw()));
+                            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(direction));
                             renderer.draw(text1, h, (cur -= decrement) - 30, 0xFFFFFFFF, false, matrices.peek().getModel(), vertexConsumers, false, 0, light);
                             matrices.pop();
                         }
                     }
-
-                    MinecraftClient.getInstance().getItemRenderer().renderItem(item, ModelTransformation.Mode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers);
+                    MinecraftClient.getInstance().getItemRenderer().renderItem(item, ModelTransformation.Mode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, 1);
                     matrices.pop();
                 }
             }
@@ -105,7 +104,7 @@ public class BlockEntityRenderMixin {
         rotate(matrices, Vector3f.POSITIVE_Z, tag.getFloat("shop-visualizer:z"));
     }*/
 
-    private static void rotate(MatrixStack matrices, Vector3f vector, float angle) {
+    private static void rotate(MatrixStack matrices, Vec3f vector, float angle) {
         matrices.multiply(vector.getDegreesQuaternion(angle));
     }
 
@@ -119,22 +118,22 @@ public class BlockEntityRenderMixin {
                 case NORTH:
                     // -0.5f, -0.5f sub 1 to z
                     matrices.translate(-0.5f, 1.15f, -1.5f * multiplierOne);
-                    rotate(matrices, Vector3f.POSITIVE_Y, 180);
+                    rotate(matrices, Vec3f.POSITIVE_Y, 180);
                     break;
                 case SOUTH:
                     // -0.5f, 0.5f sub 1 to z
                     matrices.translate(0.5f, 1.15f, -0.5f * multiplierOne);
-                    rotate(matrices, Vector3f.POSITIVE_Y, 180);
+                    rotate(matrices, Vec3f.POSITIVE_Y, 180);
                     break;
                 case EAST:
                     // -0.5f, -0.5f add 1 to z
                     matrices.translate(0.5f, 1.15f, 0.5f * multiplierTwo);
-                    rotate(matrices, Vector3f.POSITIVE_Y, 0);
+                    rotate(matrices, Vec3f.POSITIVE_Y, 0);
                     break;
                 case WEST:
                     // -0.5f, 0.5f add 1 to z
                     matrices.translate(-0.5f, 1.15f, 1.5f * multiplierTwo);
-                    rotate(matrices, Vector3f.POSITIVE_Y, 0);
+                    rotate(matrices, Vec3f.POSITIVE_Y, 0);
                     break;
             }
         } else {

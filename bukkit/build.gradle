@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id "com.github.johnrengelman.shadow" version "7.0.0"
     id 'java'
 }
 
@@ -30,17 +30,29 @@ repositories {
     }
 }
 
+configurations {
+    shade
+    compileOnly.extendsFrom shade
+}
+
 dependencies {
     //compile "co.aikar:acf-paper:0.5.0-SNAPSHOT"
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.17-R0.1-SNAPSHOT'
     compileOnly "com.acrobot.chestshop:chestshop:3.10"
     compileOnly("org.maxgamer:QuickShop:4.0.8.3-SNAPSHOT") {
         transitive = false
     }
+
+    shade project(":bukkit:common")
+    shade project(":bukkit:116")
+    shade project(":bukkit:117")
 }
 
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.property "version", rootProject.version
 
     from(sourceSets.main.resources.srcDirs) {
@@ -54,6 +66,7 @@ processResources {
 }
 
 shadowJar {
+    configurations = [project.configurations.shade]
     //relocate "co.aikar.commands", "com.epherical.commands.acf"
     //relocate "co.aikar.locales", "com.epherical.locales"
 }

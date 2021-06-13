@@ -14,10 +14,10 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.datafixer.Schemas;
 import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 
@@ -66,10 +66,10 @@ public class ShopVisualizerClient implements ClientModInitializer {
             if (tag == null) {
                 return fallbackItem;
             }
-            CompoundTag compound = NbtIo.readCompressed(new ByteArrayInputStream(tag));
+            NbtCompound compound = NbtIo.readCompressed(new ByteArrayInputStream(tag));
             int dataVersion = compound.getInt("DataVersion");
-            Dynamic<Tag> dynamicTag = Schemas.getFixer().update(TypeReferences.ITEM_STACK, new Dynamic<>(NbtOps.INSTANCE, compound), dataVersion, SharedConstants.getGameVersion().getWorldVersion());
-            return ItemStack.fromTag((CompoundTag) dynamicTag.getValue());
+            Dynamic<NbtElement> dynamicTag = Schemas.getFixer().update(TypeReferences.ITEM_STACK, new Dynamic<>(NbtOps.INSTANCE, compound), dataVersion, SharedConstants.getGameVersion().getWorldVersion());
+            return ItemStack.fromNbt((NbtCompound) dynamicTag.getValue());
         } catch (IOException e) {
             e.printStackTrace();
         }

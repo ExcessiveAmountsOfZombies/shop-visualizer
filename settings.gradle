@@ -9,5 +9,9 @@ pluginManagement {
 }
 include 'bukkit'
 include 'fabric'
-include 'forge'
+//include 'forge'
+include 'bukkit:116'
+include 'bukkit:117'
+include 'bukkit:common'
+findProject(':bukkit:common')?.name = 'common'
 
