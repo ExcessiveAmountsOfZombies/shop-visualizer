@@ -21,16 +21,11 @@ dependencies {
 }
 
 processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    inputs.property "version", rootProject.version
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     from(sourceSets.main.resources.srcDirs) {
         include "fabric.mod.json"
         expand "version": rootProject.version
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude "fabric.mod.json"
     }
 }
 
