@@ -30,6 +30,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
+import static com.epherical.shopvisualizer.client.ShopVisualizerClient.tick;
+
 @Mixin(BlockEntityRenderDispatcher.class)
 public class BlockEntityRenderMixin {
 
@@ -61,9 +63,10 @@ public class BlockEntityRenderMixin {
                     matrices.scale(0.45f, 0.45f, 0.45f);
 
 
-                    if (item == null) {
+                    if (item == null || (tick % 60 == 0 && item.isItemEqualIgnoreDamage(itemStack))) {
                         item = bukkitBlock.shop$getRenderCondition().getItem(bukkitBlock, itemStack, tag);
                         bukkitBlock.shop$setItemStack(item);
+                        tick = 0;
                     }
 
                     if (ShopVisualizerClient.getHoveredShop().equals(blockEntity.getPos())) {
