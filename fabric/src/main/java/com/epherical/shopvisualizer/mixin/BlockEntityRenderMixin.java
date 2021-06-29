@@ -49,7 +49,7 @@ public class BlockEntityRenderMixin {
                 ShopBlockEntity bukkitBlock = (ShopBlockEntity) blockEntity;
                 ItemStack item = bukkitBlock.shop$getItemStack();
                 NbtCompound tag = bukkitBlock.shop$getShopTag();
-                if (tag != null) {
+                if (tag != null && !tag.isEmpty()) {
                     matrices.push();
                     float direction = 0;
                     Direction dir = null;
